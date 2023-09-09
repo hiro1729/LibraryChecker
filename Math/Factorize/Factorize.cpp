@@ -2,22 +2,6 @@
 using namespace std;
 using ll = long long;
 using bll = __int128_t;
-// O(√n) verified
-bool is_prime(ll n){if(n<2)return false;if(n==2)return true;if(n%2==0)return false;for(ll i=3;i*i<=n;i+=2)if(n%i==0)return false;return true;}
-
-// O(√n) verified
-vector<ll>divisors(ll n){vector<ll>r;int i;for(i=1;i*i<n;i++)if(n%i==0){r.push_back(i);r.push_back(n/i);}if(i*i==n)r.push_back(i);sort(r.begin(),r.end());return r;}
-
-// O(√n) verified
-vector<pair<ll,ll>>prime_factorize(ll n){vector<pair<ll,ll>>r;int c=0;while(n%2==0){n/=2;c++;}r.push_back({2,c});for(ll p=3;p*p<=n;p+=2){if(n%p!=0)continue;int e=0;while(n%p==0){e++;n/=p;}r.push_back({p,e});}if(n!=1)r.push_back({n,1});return r;}
-
-// エラトステネスの篩
-// O(n*log(log(n))) verified
-vector<bool>EraSieve(ll n){vector<bool>p(n+1,true);p[0]=p[1]=false;for(int i=2;i<=n;i++){if(!p[i])continue;for(int q=i*2;q<=n;q+=i){p[q]=false;}}return p;}
-
-// エラトステネスの区間篩 verified
-// a以上b未満のcに対してp[c - a]
-vector<bool>EraSecSieve(ll a,ll b){ll sq=(ll)ceil(sqrt(b));vector<bool>ps(sq,true);ps[0]=ps[1]=false;for(ll i=2;i<sq;i++){if(!ps[i])continue;for(ll j=i*i;j<sq;j+=i)ps[j]=false;}vector<bool>p(b-a,true);for(ll i=2;i<sq;i++){if(!ps[i])continue;ll k=max(i,(a+i-1)/i);for(ll j=k*i;j<b;j+=i)p[j-a]=false;}return p;}
 
 // PollardRhoまでverified
 
