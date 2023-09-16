@@ -7,7 +7,7 @@ int main() {
 	cin >> q;
 	map<ll, ll> m;
 	while (q--) {
-		int t, k, v;
+		ll t, k, v;
 		cin >> t;
 		if (t == 0) {
 			cin >> k >> v;
