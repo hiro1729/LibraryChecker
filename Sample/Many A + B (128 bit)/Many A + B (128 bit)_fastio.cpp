@@ -210,7 +210,7 @@ using hiro1729::fastio::fastout::print;
 
 int main() {
 	int T;
-	long long A, B;
+	__int128_t A, B;
 	input(T);
 	while (T--) {
 		input(A, B);
