@@ -55,6 +55,14 @@ char read_chr() {
 	return ch;
 }
 
+template<class T> T read_uint() {
+	T ret = 0;
+	int ch = _chr();
+	while (isspace(ch)) ch = nxchar();
+	for (; isdigit(ch); ch = nxchar()) ret = ret * 10 + ch - '0';
+	return ret;
+}
+
 template<class T> T read_int() {
 	T ret = 0;
 	bool s = true;
@@ -75,15 +83,15 @@ template<class T> T read_flt() {
 } // namespace reader
 
 inline short Short() { return reader::read_int<short>(); }
-inline unsigned short UShort() { return reader::read_int<unsigned short>(); }
+inline unsigned short UShort() { return reader::read_uint<unsigned short>(); }
 inline int Int() { return reader::read_int<int>(); }
-inline unsigned int UInt() { return reader::read_int<unsigned int>(); }
+inline unsigned int UInt() { return reader::read_uint<unsigned int>(); }
 inline long Long() { return reader::read_int<long>(); }
-inline unsigned long ULong() { return reader::read_int<unsigned long>(); }
+inline unsigned long ULong() { return reader::read_uint<unsigned long>(); }
 inline long long LLong() { return reader::read_int<long long>(); }
-inline unsigned long long ULLong() { return reader::read_int<unsigned long long>(); }
+inline unsigned long long ULLong() { return reader::read_uint<unsigned long long>(); }
 inline __int128_t Int7() { return reader::read_int<__int128_t>(); }
-inline __uint128_t UInt7() { return reader::read_int<__uint128_t>(); }
+inline __uint128_t UInt7() { return reader::read_uint<__uint128_t>(); }
 inline float Float() { return reader::read_flt<float>(); }
 inline double Double() { return reader::read_flt<double>(); }
 inline long double LDouble() { return reader::read_flt<long double>(); }
@@ -135,6 +143,38 @@ inline void wtchar(char c) {
 	buf[wt++] = c;
 }
 
+template<typename T> inline void print_uint(T n) {
+	if (n == 0) {
+		wtchar('0');
+		return;
+	}
+	if (wt + 20 > buf_size) _write();
+	char m[19];
+	int i = 18;
+	for (; n > 0; i--) {
+		m[i] = '0' + n % 10;
+		n /= 10;
+	}
+	memcpy(buf + wt, m + i + 1, 18 - i);
+	wt += 18 - i;
+}
+
+template<typename T> inline void print_ubigint(T n) {
+	if (n == 0) {
+		wtchar('0');
+		return;
+	}
+	if (wt + 40 > buf_size) _write();
+	char m[39];
+	int i = 38;
+	for (; n > 0; i--) {
+		m[i] = '0' + n % 10;
+		n /= 10;
+	}
+	memcpy(buf + wt, m + i + 1, 38 - i);
+	wt += 38 - i;
+}
+
 template<typename T> inline void print_int(T n) {
 	if (n == 0) {
 		wtchar('0');
@@ -144,15 +184,35 @@ template<typename T> inline void print_int(T n) {
 		wtchar('-');
 		n = -n;
 	}
-	if (wt + 41 > buf_size) _write();
-	char m[41];
-	int i = 40;
+	if (wt + 20 > buf_size) _write();
+	char m[19];
+	int i = 18;
 	for (; n > 0; i--) {
 		m[i] = '0' + n % 10;
 		n /= 10;
 	}
-	memcpy(buf + wt, m + i + 1, 40 - i);
-	wt += 40 - i;
+	memcpy(buf + wt, m + i + 1, 18 - i);
+	wt += 18 - i;
+}
+
+template<typename T> inline void print_bigint(T n) {
+	if (n == 0) {
+		wtchar('0');
+		return;
+	}
+	if (n < 0) {
+		wtchar('-');
+		n = -n;
+	}
+	if (wt + 40 > buf_size) _write();
+	char m[39];
+	int i = 38;
+	for (; n > 0; i--) {
+		m[i] = '0' + n % 10;
+		n /= 10;
+	}
+	memcpy(buf + wt, m + i + 1, 38 - i);
+	wt += 38 - i;
 }
 
 void print_char(char c) {
@@ -160,8 +220,13 @@ void print_char(char c) {
 }
 
 void print_string(std::string s) {
-	for (char &c: s) {
-		wtchar(c);
+	const char *c = s.c_str();
+	for (int i = 0, l = s.size(); i < l; i++) {
+		int j = std::min(l, i + (int)(buf_size - wt));
+		memcpy(buf + wt, c + i, j - i);
+		wt += j - i;
+		_write();
+		i = j;
 	}
 }
 
@@ -178,19 +243,20 @@ struct _writer_atexit {
 } // writer
 
 inline void _SingleOutput(short n) { writer::print_int<short>(n); }
-inline void _SingleOutput(unsigned short n) { writer::print_int<unsigned short>(n); }
+inline void _SingleOutput(unsigned short n) { writer::print_uint<unsigned short>(n); }
 inline void _SingleOutput(int n) { writer::print_int<int>(n); }
-inline void _SingleOutput(unsigned int n) { writer::print_int<unsigned int>(n); }
+inline void _SingleOutput(unsigned int n) { writer::print_uint<unsigned int>(n); }
 inline void _SingleOutput(long n) { writer::print_int<long>(n); }
-inline void _SingleOutput(unsigned long n) { writer::print_int<unsigned long>(n); }
+inline void _SingleOutput(unsigned long n) { writer::print_uint<unsigned long>(n); }
 inline void _SingleOutput(long long n) { writer::print_int<long long>(n); }
-inline void _SingleOutput(unsigned long long n) { writer::print_int<unsigned long long>(n); }
-inline void _SingleOutput(__int128_t n) { writer::print_int<__int128_t>(n); }
-inline void _SingleOutput(__uint128_t n) { writer::print_int<__uint128_t>(n); }
+inline void _SingleOutput(unsigned long long n) { writer::print_uint<unsigned long long>(n); }
+inline void _SingleOutput(__int128_t n) { writer::print_bigint<__int128_t>(n); }
+inline void _SingleOutput(__uint128_t n) { writer::print_ubigint<__uint128_t>(n); }
 inline void _SingleOutput(float d) { writer::print_double<float>(d); }
 inline void _SingleOutput(double d) { writer::print_double<double>(d); }
 inline void _SingleOutput(long double d) { writer::print_double<long double>(d); }
 inline void _SingleOutput(std::string s) { writer::print_string(s); }
+inline void _SingleOutput(const char s[]) { writer::print_string(std::string(s)); }
 inline void _SingleOutput(char c) { writer::wtchar(c); }
 inline void _SingleOutput(bool b) { writer::wtchar(b ? '1' : '0'); }
 template<class S, class T> inline void _SingleOutput(std::pair<S, T> p) { _SingleOutput(p.first); writer::wtchar(' '); _SingleOutput(p.second); }
@@ -209,7 +275,7 @@ using hiro1729::fastio::fastin::input;
 using hiro1729::fastio::fastout::print;
 
 int main() {
-	int T;
+	unsigned int T;
 	__int128_t A, B;
 	input(T);
 	while (T--) {
